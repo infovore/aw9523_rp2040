@@ -7,9 +7,7 @@
 
 #include "aw9523.h"
 
-// I2C defines
-// This example will use I2C0 on GPIO4 (SDA) and GPIO5 (SCL) running at 400KHz.
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
+// I2C0 on GPIO4 (SDA) and GPIO5 (SCL) running at 400KHz.
 #define I2C_PORT i2c0
 #define I2C_SDA 4 
 #define I2C_SCL 5 
@@ -17,6 +15,8 @@
 
 uint8_t gammaIndex = 0;
 
+// gamma-corrected output
+// see: https://learn.adafruit.com/led-tricks-gamma-correction/the-quick-fix
 const uint8_t gamma8[] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
@@ -36,7 +36,7 @@ const uint8_t gamma8[] = {
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
 uint32_t msSinceBoot;
-uint8_t tickInterval = 3;
+uint8_t tickInterval = 3; // ms between LED state change
 uint32_t lastUpdateAt;
 
 int main() {
@@ -49,12 +49,6 @@ int main() {
   gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
   gpio_pull_up(I2C_SDA);
   gpio_pull_up(I2C_SCL);
-
-  // set gpio 2 as an input
-  gpio_init(2);
-  gpio_set_dir(2, GPIO_OUT);
-  // gpio_pull_up(2);
-  // uint8_t ledValue = 0;
 
   picodebounce::PicoDebounceButton button(10, false, false);
 
@@ -74,21 +68,21 @@ int main() {
   while(1) {
     msSinceBoot = to_ms_since_boot(get_absolute_time());
 
-    if(cycling) {
-      for(uint8_t i = 1; i < 5; i++) {
+    if(msSinceBoot - lastUpdateAt > tickInterval) {
+      lastUpdateAt = msSinceBoot;
+      gammaIndex++;
+    }
+
+    for(uint8_t i = 1; i < 5; i++) {
+      if(cycling) {
         aw9523.analogWrite(i, gamma8[(gammaIndex + (i*64))%255]);
-      }
-      if(msSinceBoot - lastUpdateAt > tickInterval) {
-        lastUpdateAt = msSinceBoot;
-        gammaIndex++;
-      }
-    } else {
-      for(uint8_t i = 1; i < 5; i++) {
+      } else {
         aw9523.analogWrite(i, gamma8[64]);
       }
     }
 
     uint8_t buttonVal = aw9523.digitalRead(8);
+
     if(button.update(buttonVal)) {
       if(button.getState() == picodebounce::PicoDebounceButton::PRESSED) {
         cycling = 1-cycling;
