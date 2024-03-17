@@ -35,6 +35,10 @@ const uint8_t gamma8[] = {
   177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
+uint32_t msSinceBoot;
+uint8_t tickInterval = 3;
+uint32_t lastUpdateAt;
+
 int main() {
   stdio_init_all();
 
@@ -52,60 +56,44 @@ int main() {
   // gpio_pull_up(2);
   // uint8_t ledValue = 0;
 
-  // picodebounce::PicoDebounceButton otherButton(2, 10, false, false);
+  picodebounce::PicoDebounceButton button(10, false, false);
 
-  // picodebounce::PicoDebounceButton buttons[3] = {
-  //   picodebounce::PicoDebounceButton(10,false,false),
-  //   picodebounce::PicoDebounceButton(10,false,false),
-  //   picodebounce::PicoDebounceButton(10,false,false),
-  // };
-
-  // uint8_t buttonStates[3] = {0,0,0};
+  uint8_t cycling = 0;
 
   AW9523 aw9523(&i2c0_inst, 0x00);
   aw9523.begin();
   
-  // printf("Setting pin modes");
-
   aw9523.pinMode(1,AW9523_LED_MODE);
   aw9523.pinMode(2,AW9523_LED_MODE);
   aw9523.pinMode(3,AW9523_LED_MODE);
   aw9523.pinMode(4,AW9523_LED_MODE);
+  aw9523.pinMode(8,INPUT);
 
-  // printf("Pin modes set");
-  // pca9555.pinMode(0,0,0);
-  // pca9555.pinMode(0,1,0);
-  // pca9555.pinMode(0,2,0);
-  // aw9523.portMode(0,0);
-  // aw9523.writePort(0,0);
-
-  // aw9523.readPort(1);
+  lastUpdateAt = to_ms_since_boot(get_absolute_time());
 
   while(1) {
-    // gpio_put(LED_PIN, ledValue);
-    for(uint8_t i = 1; i < 5; i++) {
-      aw9523.analogWrite(i, gamma8[(gammaIndex + (i*64))%255]);
+    msSinceBoot = to_ms_since_boot(get_absolute_time());
+
+    if(cycling) {
+      for(uint8_t i = 1; i < 5; i++) {
+        aw9523.analogWrite(i, gamma8[(gammaIndex + (i*64))%255]);
+      }
+      if(msSinceBoot - lastUpdateAt > tickInterval) {
+        lastUpdateAt = msSinceBoot;
+        gammaIndex++;
+      }
+    } else {
+      for(uint8_t i = 1; i < 5; i++) {
+        aw9523.analogWrite(i, gamma8[128]);
+      }
     }
-    // sleep for 250ms
-    sleep_ms(5);
-    gammaIndex++;
-    // ledValue = 1-ledValue;
-    // printf("gammaIndex: %d\n", gammaIndex);
-    // if(otherButton.update()) {
-    //   printf("%d", otherButton.getState());
-    //   if(otherButton.getState() == 0) {
-    //     buttonStates[0] = !buttonStates[0];
-    //   }
-    // }
-    // for(uint8_t i = 0; i < 3; i++) {
-    //   uint8_t val = aw9523.readPin(1,i);
-    //   if(buttons[i].update(val)) {
-    //     if(buttons[i].getState() == picodebounce::PicoDebounceButton::PRESSED) {
-    //       buttonStates[i] = !buttonStates[i];
-    //     }
-    //   }
-    //   aw9523.writePin(0, i, buttonStates[i]);
-    // }
+
+    uint8_t buttonVal = aw9523.digitalRead(8);
+    if(button.update(buttonVal)) {
+      if(button.getState() == picodebounce::PicoDebounceButton::PRESSED) {
+        cycling = 1-cycling;
+      }
+    }
   }
 
   return 0;
