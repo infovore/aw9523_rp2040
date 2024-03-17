@@ -37,8 +37,8 @@ bool AW9523::begin() {
   // check chip id
   msgBuffer[0] = AW9523_REG_CHIPID;
   uint8_t chipIdRetval;
-  i2c_write_blocking(i2c, address, msgBuffer, 1, false);
-  i2c_read_blocking(i2c,address, &chipIdRetval, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
+  i2c_read_blocking(i2c, fullAddress(), &chipIdRetval, 1, false);
 
   if (chipIdRetval = 0x23) {
     return false;
@@ -58,7 +58,7 @@ bool AW9523::begin() {
 bool AW9523::reset(void) {
   msgBuffer[0] = AW9523_REG_SOFTRESET;
   msgBuffer[1] = 0;
-  return i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer, 2, false);
+  return i2c_write_blocking(i2c, fullAddress(), msgBuffer, 2, false);
 }
 
 /*!
@@ -69,7 +69,7 @@ bool AW9523::reset(void) {
 bool AW9523::outputGPIO(uint16_t pins) {
   msgBuffer[0] = AW9523_REG_OUTPUT0;
   msgBuffer[1] = pins & 0xFF;
-  uint8_t result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -77,7 +77,7 @@ bool AW9523::outputGPIO(uint16_t pins) {
 
   msgBuffer[0] = AW9523_REG_OUTPUT0 + 1;
   msgBuffer[1] = pins >> 8;
-  result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -96,15 +96,15 @@ uint16_t AW9523::inputGPIO(void) {
   // tell port0 we want to read from it
   msgBuffer[0] = AW9523_REG_INPUT0;
   msgBuffer[1] = 0x00;
-  i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
   // and now read from it
-  i2c_read_blocking(i2c_dev,fullAddress(), &input0reg, 1, false);
+  i2c_read_blocking(i2c,fullAddress(), &input0reg, 1, false);
 
   msgBuffer[0] = AW9523_REG_INPUT0 + 1;
   msgBuffer[1] = 0x00;
-  i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
   // and now read from it
-  i2c_read_blocking(i2c_dev,fullAddress(), &input1reg, 1, false);
+  i2c_read_blocking(i2c,fullAddress(), &input1reg, 1, false);
 
   pinValues = ((uint16_t)input1reg << 8) | (uint16_t)input0reg;
   return pinValues;
@@ -118,7 +118,7 @@ uint16_t AW9523::inputGPIO(void) {
 bool AW9523::interruptEnableGPIO(uint16_t pins) {
   msgBuffer[0] = AW9523_REG_INTENABLE0;
   msgBuffer[1] = ~(pins & 0xFF);
-  uint8_t result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -126,7 +126,7 @@ bool AW9523::interruptEnableGPIO(uint16_t pins) {
 
   msgBuffer[0] = AW9523_REG_INTENABLE0 + 1;
   msgBuffer[1] = ~(pins >> 8);
-  result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -144,7 +144,7 @@ bool AW9523::interruptEnableGPIO(uint16_t pins) {
 bool AW9523::configureDirection(uint16_t pins) {
   msgBuffer[0] = AW9523_REG_CONFIG0;
   msgBuffer[1] = ~(pins & 0xFF);
-  uint8_t result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -152,7 +152,7 @@ bool AW9523::configureDirection(uint16_t pins) {
 
   msgBuffer[0] = AW9523_REG_CONFIG0 + 1;
   msgBuffer[1] = ~(pins >> 8);
-  result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -169,7 +169,7 @@ bool AW9523::configureDirection(uint16_t pins) {
 bool AW9523::configureLEDMode(uint16_t pins) {
   msgBuffer[0] = AW9523_REG_LEDMODE;
   msgBuffer[1] = ~(pins & 0xFF);
-  uint8_t result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -177,7 +177,7 @@ bool AW9523::configureLEDMode(uint16_t pins) {
 
   msgBuffer[0] = AW9523_REG_LEDMODE + 1;
   msgBuffer[1] = ~(pins >> 8);
-  result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if (!result) {
     return false;
@@ -207,7 +207,7 @@ void AW9523::analogWrite(uint8_t pin, uint8_t val) {
 
   msgBuffer[0] = reg;
   msgBuffer[1] = val;
-  i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 }
 
 /*!
@@ -227,7 +227,7 @@ void AW9523::digitalWrite(uint8_t pin, bool val) {
 
   msgBuffer[0] = outputReg;
   msgBuffer[1] = newPinvalues;
-  uint8_t result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if(result) {
     pinValues = newPinvalues;
@@ -244,9 +244,9 @@ bool AW9523::digitalRead(uint8_t pin) {
   // tell port0 we want to read from it
   msgBuffer[0] = AW9523_REG_INPUT0 + (pin / 8);
   msgBuffer[1] = 0x00;
-  i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
   // and now read from it
-  i2c_read_blocking(i2c_dev,fullAddress(), &inputreg, 1, false);
+  i2c_read_blocking(i2c,fullAddress(), &inputreg, 1, false);
 
   return (inputreg >> (pin % 8)) & 0x01;
 }
@@ -267,7 +267,7 @@ void AW9523::enableInterrupt(uint8_t pin, bool en) {
 
   msgBuffer[0] = outputReg;
   msgBuffer[1] = newInterruptEnValues;
-  uint8_t result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
   if(result) {
     interruptEnValues = newInterruptEnValues;
@@ -287,10 +287,10 @@ void AW9523::pinMode(uint8_t pin, uint8_t mode) {
   if (mode == OUTPUT) {
     msgBuffer[0] = directionRegister;
     msgBuffer[1] = 0x00;
-    i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+    i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
     msgBuffer[0] = ledModeRegister;
     msgBuffer[1] = 0x01;
-    i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+    i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
     // pin direction for this pin is output
     pinDirections =  (pinValues & ~(1 << pin)) | (1 << pin);
@@ -299,10 +299,10 @@ void AW9523::pinMode(uint8_t pin, uint8_t mode) {
   if (mode == INPUT) {
     msgBuffer[0] = directionRegister;
     msgBuffer[1] = 0x01;
-    i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+    i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
     msgBuffer[0] = ledModeRegister;
     msgBuffer[1] = 0x01;
-    i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+    i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
     // pin direction for this pin is input
     pinDirections =  (pinValues & ~(1 << pin)) | (0 << pin);
@@ -312,10 +312,10 @@ void AW9523::pinMode(uint8_t pin, uint8_t mode) {
   if (mode == AW9523_LED_MODE) {
     msgBuffer[0] = directionRegister;
     msgBuffer[1] = 0x00;
-    i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+    i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
     msgBuffer[0] = ledModeRegister;
     msgBuffer[1] = 0x00;
-    i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+    i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 
     // pin direction for this pin is output
     pinDirections =  (pinValues & ~(1 << pin)) | (1 << pin);
@@ -333,7 +333,7 @@ bool AW9523::openDrainPort0(bool od) {
 
   msgBuffer[0] = outputReg;
   msgBuffer[1] =  !od << 4;
-  uint8_t result = i2c_write_blocking(i2c_dev, fullAddress(), msgBuffer,2, false);
+  uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
 }
 
 // this is tom's old PCA9555 class
