@@ -67,7 +67,7 @@ int main() {
   aw9523.pinMode(2,AW9523_LED_MODE);
   aw9523.pinMode(3,AW9523_LED_MODE);
   aw9523.pinMode(4,AW9523_LED_MODE);
-  aw9523.pinMode(8,INPUT);
+  aw9523.pinMode(8,AW9523_INPUT);
 
   lastUpdateAt = to_ms_since_boot(get_absolute_time());
 
@@ -84,7 +84,7 @@ int main() {
       }
     } else {
       for(uint8_t i = 1; i < 5; i++) {
-        aw9523.analogWrite(i, gamma8[128]);
+        aw9523.analogWrite(i, gamma8[64]);
       }
     }
 

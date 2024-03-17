@@ -287,7 +287,7 @@ void AW9523::pinMode(uint8_t pin, uint8_t mode) {
   uint8_t directionRegister = AW9523_REG_CONFIG0 + (pin / 8);
   uint8_t ledModeRegister = AW9523_REG_LEDMODE + (pin / 8);
 
-  if (mode == OUTPUT) {
+  if (mode == AW9523_OUTPUT) {
     msgBuffer[0] = directionRegister;
     msgBuffer[1] = 0x00;
     i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
@@ -299,7 +299,7 @@ void AW9523::pinMode(uint8_t pin, uint8_t mode) {
     pinDirections =  (pinValues & ~(1 << pin)) | (1 << pin);
     ccMode =  (pinValues & ~(1 << pin)) | (0 << pin);
   }
-  if (mode == INPUT) {
+  if (mode == AW9523_INPUT) {
     msgBuffer[0] = directionRegister;
     msgBuffer[1] = 0x01;
     i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);

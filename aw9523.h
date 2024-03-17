@@ -7,8 +7,8 @@
 
 #define AW9523_LED_MODE 0x99 ///< Special pinMode() macro for constant current
 
-#define INPUT 0x00
-#define OUTPUT 0x01
+#define AW9523_INPUT 0x00
+#define AW9523_OUTPUT 0x01
 #define AW9523_REG_CHIPID 0x10     ///< Register for hardcode chip ID
 #define AW9523_REG_SOFTRESET 0x7F  ///< Register for soft resetting
 #define AW9523_REG_INPUT0 0x00     ///< Register for reading input values
