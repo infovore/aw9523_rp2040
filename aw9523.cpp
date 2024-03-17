@@ -3,9 +3,7 @@
  */
 
 #include "aw9523.h"
-#include "pico/stdio.h"
 #include "hardware/i2c.h"
-#include <stdio.h>
 
 /*!
  *    @brief  Instantiates a new AW9523 class
@@ -127,8 +125,6 @@ bool AW9523::interruptEnableGPIO(uint16_t pins) {
     return false;
   }
 
-  printf("Found device at address 0x%x\n", fullAddress());
-
   msgBuffer[0] = AW9523_REG_INTENABLE0 + 1;
   msgBuffer[1] = ~(pins >> 8);
   result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
@@ -147,7 +143,6 @@ bool AW9523::interruptEnableGPIO(uint16_t pins) {
  *    @return True I2C write command was acknowledged
  */
 bool AW9523::configureDirection(uint16_t pins) {
-  printf("Configuring direction for bank 0");
   msgBuffer[0] = AW9523_REG_CONFIG0;
   msgBuffer[1] = ~(pins & 0xFF);
   uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
@@ -155,9 +150,7 @@ bool AW9523::configureDirection(uint16_t pins) {
   if (!result) {
     return false;
   }
-  printf("Configured");
 
-  printf("Configuring direction for bank 1");
   msgBuffer[0] = AW9523_REG_CONFIG0 + 1;
   msgBuffer[1] = ~(pins >> 8);
   result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
@@ -165,7 +158,7 @@ bool AW9523::configureDirection(uint16_t pins) {
   if (!result) {
     return false;
   }
-  printf("Configured");
+
   pinDirections = pins;
   return true;
 }
