@@ -1,5 +1,6 @@
 /*!
- *  AW9523 library. Ported from Adafruit. 
+ *  AW9523 driver for RP2040
+ *  Ported from https://github.com/adafruit/Adafruit_AW9523
  */
 
 #include "aw9523.h"
