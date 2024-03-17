@@ -30,7 +30,7 @@ public:
 
   bool begin();
   bool reset(void);
-  bool openDrainPort0(bool od);
+  bool openDrainPortZero(bool od);
   uint8_t fullAddress();
 
   // All 16 pins at once

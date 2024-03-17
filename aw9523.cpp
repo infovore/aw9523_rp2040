@@ -3,6 +3,9 @@
  */
 
 #include "aw9523.h"
+#include "pico/stdio.h"
+#include "hardware/i2c.h"
+#include <stdio.h>
 
 /*!
  *    @brief  Instantiates a new AW9523 class
@@ -40,12 +43,12 @@ bool AW9523::begin() {
   i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
   i2c_read_blocking(i2c, fullAddress(), &chipIdRetval, 1, false);
 
-  if (chipIdRetval = 0x23) {
+  if (chipIdRetval != 0x23) {
     return false;
   }
 
   configureDirection(0x0); // all inputs!
-  openDrainPort0(false);   // push pull default
+  openDrainPortZero(false);   // push pull default
   interruptEnableGPIO(0);  // no interrupt
 
   return true;
@@ -124,6 +127,8 @@ bool AW9523::interruptEnableGPIO(uint16_t pins) {
     return false;
   }
 
+  printf("Found device at address 0x%x\n", fullAddress());
+
   msgBuffer[0] = AW9523_REG_INTENABLE0 + 1;
   msgBuffer[1] = ~(pins >> 8);
   result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
@@ -142,6 +147,7 @@ bool AW9523::interruptEnableGPIO(uint16_t pins) {
  *    @return True I2C write command was acknowledged
  */
 bool AW9523::configureDirection(uint16_t pins) {
+  printf("Configuring direction for bank 0");
   msgBuffer[0] = AW9523_REG_CONFIG0;
   msgBuffer[1] = ~(pins & 0xFF);
   uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
@@ -149,7 +155,9 @@ bool AW9523::configureDirection(uint16_t pins) {
   if (!result) {
     return false;
   }
+  printf("Configured");
 
+  printf("Configuring direction for bank 1");
   msgBuffer[0] = AW9523_REG_CONFIG0 + 1;
   msgBuffer[1] = ~(pins >> 8);
   result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
@@ -157,6 +165,7 @@ bool AW9523::configureDirection(uint16_t pins) {
   if (!result) {
     return false;
   }
+  printf("Configured");
   pinDirections = pins;
   return true;
 }
@@ -282,7 +291,7 @@ void AW9523::enableInterrupt(uint8_t pin, bool en) {
  */
 void AW9523::pinMode(uint8_t pin, uint8_t mode) {
   uint8_t directionRegister = AW9523_REG_CONFIG0 + (pin / 8);
-  uint8_t ledModeRegister = AW9523_LED_MODE + (pin / 8);
+  uint8_t ledModeRegister = AW9523_REG_LEDMODE + (pin / 8);
 
   if (mode == OUTPUT) {
     msgBuffer[0] = directionRegister;
@@ -328,12 +337,19 @@ void AW9523::pinMode(uint8_t pin, uint8_t mode) {
  *    @param  od True to enable open drain, False for push-pull
  *    @return True if I2C write command was acknowledged, otherwise false
  */
-bool AW9523::openDrainPort0(bool od) {
+bool AW9523::openDrainPortZero(bool od) {
   uint8_t outputReg = AW9523_REG_GCR;
 
+  uint8_t configRegValue;
   msgBuffer[0] = outputReg;
-  msgBuffer[1] =  !od << 4;
+  msgBuffer[1] = 0x00;
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, true);
+  i2c_read_blocking(i2c, fullAddress(), &configRegValue, 1, false);
+
+  msgBuffer[0] = outputReg;
+  msgBuffer[1] = (configRegValue & ~(1 << 4)) | (!od << 4);
   uint8_t result = i2c_write_blocking(i2c, fullAddress(), msgBuffer,2, false);
+  return result;
 }
 
 // this is tom's old PCA9555 class
