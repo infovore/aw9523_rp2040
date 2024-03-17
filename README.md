@@ -1,6 +1,8 @@
-# AW9523
+# AW9523 for RP2040
 
-A demo of the AW9523 I2C GPIO expander for Raspberry Pi Pico. The library is ported from the [Adafruit Library for this](https://github.com/adafruit/Adafruit_AW9523); I've removed the `Adafruit_I2CRegister` abstraction provided by `Adafruit_BusIO` and just used raw Pico SDK i2c commands.
+A demo of the AW9523 I2C GPIO expander for RP2040. The library is ported from the [Adafruit Library for this](https://github.com/adafruit/Adafruit_AW9523); I've removed the `Adafruit_I2CRegister` abstraction provided by `Adafruit_BusIO` and just used raw Pico SDK i2c commands.
+
+Currently this is configured for a `pico_w` in `CMakeLists.txt`; you should probably change that to `pico` for a regular board. I just had a Pico W on hand to test this with.
 
 ## Connections
 
