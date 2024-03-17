@@ -13,6 +13,7 @@
 #define I2C_PORT i2c0
 #define I2C_SDA 4 
 #define I2C_SCL 5 
+#define LED_PIN 2
 
 uint8_t gammaIndex = 0;
 
@@ -46,9 +47,10 @@ int main() {
   gpio_pull_up(I2C_SCL);
 
   // set gpio 2 as an input
-  // gpio_init(2);
-  // gpio_set_dir(2, GPIO_IN);
+  gpio_init(2);
+  gpio_set_dir(2, GPIO_OUT);
   // gpio_pull_up(2);
+  // uint8_t ledValue = 0;
 
   // picodebounce::PicoDebounceButton otherButton(2, 10, false, false);
 
@@ -62,12 +64,15 @@ int main() {
 
   AW9523 aw9523(&i2c0_inst, 0x00);
   aw9523.begin();
+  
+  // printf("Setting pin modes");
 
   aw9523.pinMode(1,AW9523_LED_MODE);
   aw9523.pinMode(2,AW9523_LED_MODE);
   aw9523.pinMode(3,AW9523_LED_MODE);
   aw9523.pinMode(4,AW9523_LED_MODE);
 
+  // printf("Pin modes set");
   // pca9555.pinMode(0,0,0);
   // pca9555.pinMode(0,1,0);
   // pca9555.pinMode(0,2,0);
@@ -77,12 +82,15 @@ int main() {
   // aw9523.readPort(1);
 
   while(1) {
-    for(uint8_t i = 1; i < 4; i++) {
-      aw9523.analogWrite(i, gamma8[gammaIndex]);
+    // gpio_put(LED_PIN, ledValue);
+    for(uint8_t i = 1; i < 5; i++) {
+      aw9523.analogWrite(i, gamma8[(gammaIndex + (i*64))%255]);
     }
     // sleep for 250ms
-    sleep_ms(250);
-    gammaIndex = (gammaIndex + 16) % 255;
+    sleep_ms(5);
+    gammaIndex++;
+    // ledValue = 1-ledValue;
+    // printf("gammaIndex: %d\n", gammaIndex);
     // if(otherButton.update()) {
     //   printf("%d", otherButton.getState());
     //   if(otherButton.getState() == 0) {
