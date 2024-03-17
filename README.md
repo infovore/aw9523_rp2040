@@ -16,6 +16,10 @@ Connect AW9523 VDD to 3V3, and GND to Ground.
 
 ## Usage
 
-By default, the demo will light LEDs on pins 1-4 at about 50% brightness.
+By default, the demo will light LEDs on pins 1-4 at about 25% brightness.
 
 Push the button to toggle to cycling them through all brightnesses; each LED will be a little out of phase, creating a scrolling effect.
+
+## Library Usage
+
+You need `aw9523.cpp` and `aw9523.h` included in your project via CMake, and then you'll be able to use and instantiate the library.
