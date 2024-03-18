@@ -20,7 +20,7 @@ Connect AW9523 VDD to 3V3, and GND to Ground.
 
 By default, the demo will light LEDs on pins 1-4 at about 25% brightness.
 
-Push the button to toggle to cycling them through all brightnesses; each LED will be a little out of phase, creating a scrolling effect.
+Push the button to toggle to pulsing them through all brightnesses; each LED will be 90º out of phase, creating a scrolling effect. (I wouldn't recommend using floating point math and `sin` in a production object, but it'll do for our demo).
 
 ## Library Usage
 

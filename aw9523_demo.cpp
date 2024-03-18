@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "pico/stdlib.h"
 #include "pico/stdio.h"
 #include "hardware/i2c.h"
@@ -35,7 +36,7 @@ const uint8_t gamma8[] = {
   177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
-uint8_t tickInterval = 3; // ms between LED state change
+uint8_t tickInterval = 5; // ms between LED state change
 absolute_time_t lastUpdateAt;
 
 int main() {
@@ -75,7 +76,9 @@ int main() {
 
     for(uint8_t i = 1; i < 5; i++) {
       if(cycling) {
-        aw9523.analogWrite(i, gamma8[(gammaIndex + (i*64))%255]);
+        float_t phase = ((gammaIndex + (i*64)) % 255)/255.0 * 2 * M_PI;
+        uint8_t index = floor((sin(phase) + 1) * 127);
+        aw9523.analogWrite(i, gamma8[index]);
       } else {
         aw9523.analogWrite(i, gamma8[64]);
       }
