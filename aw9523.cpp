@@ -39,7 +39,7 @@ bool AW9523::begin() {
   // check chip id
   msgBuffer[0] = AW9523_REG_CHIPID;
   uint8_t chipIdRetval;
-  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, true);
   i2c_read_blocking(i2c, fullAddress(), &chipIdRetval, 1, false);
 
   if (chipIdRetval != 0x23) {
@@ -98,13 +98,13 @@ uint16_t AW9523::inputGPIO(void) {
   // tell port0 we want to read from it
   msgBuffer[0] = AW9523_REG_INPUT0;
   msgBuffer[1] = 0x00;
-  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, true);
   // and now read from it
   i2c_read_blocking(i2c,fullAddress(), &input0reg, 1, false);
 
   msgBuffer[0] = AW9523_REG_INPUT0 + 1;
   msgBuffer[1] = 0x00;
-  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, true);
   // and now read from it
   i2c_read_blocking(i2c,fullAddress(), &input1reg, 1, false);
 
@@ -247,7 +247,7 @@ bool AW9523::digitalRead(uint8_t pin) {
   // tell port0 we want to read from it
   msgBuffer[0] = AW9523_REG_INPUT0 + (pin / 8);
   msgBuffer[1] = 0x00;
-  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, false);
+  i2c_write_blocking(i2c, fullAddress(), msgBuffer, 1, true);
   // and now read from it
   i2c_read_blocking(i2c,fullAddress(), &inputreg, 1, false);
 
