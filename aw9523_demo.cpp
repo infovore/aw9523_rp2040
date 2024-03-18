@@ -35,9 +35,8 @@ const uint8_t gamma8[] = {
   177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
-uint32_t msSinceBoot;
 uint8_t tickInterval = 3; // ms between LED state change
-uint32_t lastUpdateAt;
+absolute_time_t lastUpdateAt;
 
 int main() {
   stdio_init_all();
@@ -63,13 +62,14 @@ int main() {
   aw9523.pinMode(4,AW9523_LED_MODE);
   aw9523.pinMode(8,AW9523_INPUT);
 
-  lastUpdateAt = to_ms_since_boot(get_absolute_time());
+  lastUpdateAt = get_absolute_time();
 
   while(1) {
-    msSinceBoot = to_ms_since_boot(get_absolute_time());
+    absolute_time_t now = get_absolute_time();
+    int64_t timeDelta = absolute_time_diff_us(lastUpdateAt, now);
 
-    if(msSinceBoot - lastUpdateAt > tickInterval) {
-      lastUpdateAt = msSinceBoot;
+    if(timeDelta > (tickInterval*1000)) {
+      lastUpdateAt = now;
       gammaIndex++;
     }
 
