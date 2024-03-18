@@ -8,6 +8,8 @@ Currently this is configured for a `pico_w` in `CMakeLists.txt`; you should prob
 
 Connect an AW9523 over I2C, connecting SDA/SCL to GPIO4/5, respectively.
 
+Connect pullups (around 4k7/5k6) between SDA/SCL and VCC.
+
 Connect a push button between VCC and AW9523 pin 8. Connect a pull-up resistor between pin 8 and VCC. 
 
 Connect the **cathodes** of four LEDs to AW9523 IOs 1-4. Connect the **anode** to VCC. You do not need resistors.
